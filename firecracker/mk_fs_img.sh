@@ -21,14 +21,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-
+# remake the symlink
 HOST_DATA_DIR=data
-
-if [ ! -d "$HOST_DATA_DIR" ]; then
-    echo "Error: data directory '$VMROOT/$HOST_DATA_DIR' does not exist."
-    exit 1
-fi
-
+rm -rf $HOST_DATA_DIR
+ln -s ../data $HOST_DATA_DIR
 
 # Create an empty disk image
 dd if=/dev/zero of=data.ext4 bs=1M count=50
