@@ -16,5 +16,5 @@ mk_fs_img.sh        <vm-dir>      # when data/ changes
 
 # run everytime one starts a new vm
 start_firecracker.sh <vm-dir>     # run in one terminal
-start_microvm.sh     <vm-dir>     # run in one terminal
+start_microvm.sh     <vm-dir>     # run in another terminal
 ```
