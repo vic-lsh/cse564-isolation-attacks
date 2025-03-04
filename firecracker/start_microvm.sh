@@ -32,7 +32,7 @@ HOST_IFACE=$(ip -j route list default |jq -r '.[0].dev')
 sudo iptables -t nat -D POSTROUTING -o "$HOST_IFACE" -j MASQUERADE || true
 sudo iptables -t nat -A POSTROUTING -o "$HOST_IFACE" -j MASQUERADE
 
-API_SOCKET="/tmp/firecracker.socket"
+API_SOCKET="/tmp/firecracker_$VMROOT.socket"
 LOGFILE="./$VMROOT/firecracker.log"
 
 # Create log file

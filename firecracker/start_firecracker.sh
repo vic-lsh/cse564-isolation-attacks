@@ -1,6 +1,15 @@
 #!/bin/bash
 
-API_SOCKET="/tmp/firecracker.socket"
+set -e
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <vm-rootdir>"
+    exit 1
+fi
+
+VMROOT=$1
+
+API_SOCKET="/tmp/firecracker_$VMROOT.socket"
 
 # Remove API unix socket
 sudo rm -f $API_SOCKET
