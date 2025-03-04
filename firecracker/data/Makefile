@@ -1,5 +1,5 @@
 CFLAGS = -Wall -Werror
-LDFLAGS = -lnuma
+LDFLAGS = -lnuma -lm
 
 SRC_DIR = src
 BUILD_DIR = bin
