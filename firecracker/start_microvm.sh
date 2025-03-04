@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -e
+#set -e
+set -x
 
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <vm-rootdir>"
@@ -9,11 +10,31 @@ fi
 
 VMROOT=$1
 
-TAP_DEV="tap0"
-TAP_IP="172.16.0.1"
+# Get the last character of VMROOT
+last_char="${VMROOT: -1}"
+
+# Check if the last character is a digit
+VM_ID=
+if [[ "$last_char" =~ [0-9] ]]; then
+    VM_ID=$((last_char + 1))
+else
+    echo "Error: The last character of VMROOT is not a digit"
+    exit 1
+fi
+
+HOST_IP="172.16.100.1"
+
+# Use unique TAP device per VM
+TAP_DEV="tap$VM_ID"
+TAP_IP="172.16.0.$((($VM_ID * 4) + 1))"
+VM_IP="172.16.0.$((($VM_ID * 4) + 2))"
 MASK_SHORT="/30"
 
-# Setup network interface
+# Generate a MAC address where the last octet matches the VM's IP
+MAC_SUFFIX=$(printf "%02x" $((($VM_ID * 4) + 2)))
+FC_MAC="06:00:AC:10:00:${MAC_SUFFIX}"
+
+# Setup network interface (rest of your networking setup)
 sudo ip link del "$TAP_DEV" 2> /dev/null || true
 sudo ip tuntap add dev "$TAP_DEV" mode tap
 sudo ip addr add "${TAP_IP}${MASK_SHORT}" dev "$TAP_DEV"
@@ -90,11 +111,6 @@ sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     }" \
     "http://localhost/drives/data"
 
-# The IP address of a guest is derived from its MAC address with
-# `fcnet-setup.sh`, this has been pre-configured in the guest rootfs. It is
-# important that `TAP_IP` and `FC_MAC` match this.
-FC_MAC="06:00:AC:10:00:02"
-
 # Set network interface
 sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     --data "{
@@ -120,13 +136,19 @@ sudo curl -X PUT --unix-socket "${API_SOCKET}" \
 sleep 2s
 
 # Setup internet access in the guest
-ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@172.16.0.2  "ip route add default via 172.16.0.1 dev eth0"
+ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP  "ip route add default via $TAP_IP dev eth0"
+
+# hard-code alias to the tap ip (to share the same host ip across VMs)
+ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP  "ip addr add $HOST_IP dev eth0"
 
 # Setup DNS resolution in the guest
-ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@172.16.0.2  "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
+ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP  "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
+
+# Setup /mnt/data
+ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP  "mount /dev/vdb /mnt/data"
 
 # SSH into the microVM
-ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@172.16.0.2
+ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP
 
 # Use `root` for both the login and password.
 # Run `reboot` to exit.
