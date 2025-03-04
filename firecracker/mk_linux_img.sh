@@ -1,6 +1,17 @@
 #!/bin/bash
 
+set -e
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <vm-rootdir>"
+    exit 1
+fi
+
 ARCH="$(uname -m)"
+
+VMROOT=$1
+mkdir -p $VMROOT
+cd $VMROOT
 
 latest=$(wget "http://spec.ccfc.min.s3.amazonaws.com/?prefix=firecracker-ci/v1.11/$ARCH/vmlinux-5.10&list-type=2" -O - 2>/dev/null | grep -oP "(?<=<Key>)(firecracker-ci/v1.11/$ARCH/vmlinux-5\.10\.[0-9]{1,3})(?=</Key>)")
 

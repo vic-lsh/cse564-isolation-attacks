@@ -1,5 +1,14 @@
 #!/bin/bash
 
+set -e
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <vm-rootdir>"
+    exit 1
+fi
+
+VMROOT=$1
+
 TAP_DEV="tap0"
 TAP_IP="172.16.0.1"
 MASK_SHORT="/30"
@@ -24,7 +33,7 @@ sudo iptables -t nat -D POSTROUTING -o "$HOST_IFACE" -j MASQUERADE || true
 sudo iptables -t nat -A POSTROUTING -o "$HOST_IFACE" -j MASQUERADE
 
 API_SOCKET="/tmp/firecracker.socket"
-LOGFILE="./firecracker.log"
+LOGFILE="./$VMROOT/firecracker.log"
 
 # Create log file
 touch $LOGFILE
@@ -39,8 +48,10 @@ sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     }" \
     "http://localhost/logger"
 
-KERNEL="./$(ls vmlinux* | tail -1)"
+KERNEL="./$(ls $VMROOT/vmlinux* | tail -1)"
 KERNEL_BOOT_ARGS="console=ttyS0 reboot=k panic=1 pci=off"
+
+echo "Booting kernel $KERNEL"
 
 ARCH=$(uname -m)
 
@@ -56,7 +67,7 @@ sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     }" \
     "http://localhost/boot-source"
 
-ROOTFS="./ubuntu-24.04.ext4"
+ROOTFS="./$VMROOT/ubuntu-24.04.ext4"
 
 # Set rootfs
 sudo curl -X PUT --unix-socket "${API_SOCKET}" \
@@ -68,7 +79,7 @@ sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     }" \
     "http://localhost/drives/rootfs"
 
-DATAFS="./data.ext4"
+DATAFS="./$VMROOT/data.ext4"
 # Set datafs (to sync user-custom files)
 sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     --data "{
@@ -109,13 +120,13 @@ sudo curl -X PUT --unix-socket "${API_SOCKET}" \
 sleep 2s
 
 # Setup internet access in the guest
-ssh -i ./ubuntu-24.04.id_rsa root@172.16.0.2  "ip route add default via 172.16.0.1 dev eth0"
+ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@172.16.0.2  "ip route add default via 172.16.0.1 dev eth0"
 
 # Setup DNS resolution in the guest
-ssh -i ./ubuntu-24.04.id_rsa root@172.16.0.2  "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
+ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@172.16.0.2  "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
 
 # SSH into the microVM
-ssh -i ./ubuntu-24.04.id_rsa root@172.16.0.2
+ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@172.16.0.2
 
 # Use `root` for both the login and password.
 # Run `reboot` to exit.
