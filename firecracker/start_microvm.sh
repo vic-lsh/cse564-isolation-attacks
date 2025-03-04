@@ -68,6 +68,17 @@ sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     }" \
     "http://localhost/drives/rootfs"
 
+DATAFS="./data.ext4"
+# Set datafs (to sync user-custom files)
+sudo curl -X PUT --unix-socket "${API_SOCKET}" \
+    --data "{
+        \"drive_id\": \"data\",
+        \"path_on_host\": \"${DATAFS}\",
+        \"is_root_device\": false,
+        \"is_read_only\": false
+    }" \
+    "http://localhost/drives/data"
+
 # The IP address of a guest is derived from its MAC address with
 # `fcnet-setup.sh`, this has been pre-configured in the guest rootfs. It is
 # important that `TAP_IP` and `FC_MAC` match this.
