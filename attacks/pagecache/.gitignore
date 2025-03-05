@@ -1,0 +1,3 @@
+**/*.img
+.setup_done
+.ready_to_run
