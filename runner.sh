@@ -11,6 +11,12 @@ fi
 system=$1
 attack=$2
 
+cd systems/$system
+if [ -f ./before_run_setup.sh ]; then
+    ./before_run_setup.sh
+fi
+cd ../..
+
 cd attacks/$attack
 
 if [ -f ./before_run_setup ]; then
@@ -34,3 +40,10 @@ echo "Running victim + attack..."
 if [ -f ./after_run_teardown ]; then
     ./after_run_teardown.sh
 fi
+
+cd ../..
+cd systems/$system
+if [ -f ./after_run_teardown.sh ]; then
+    ./after_run_teardown.sh
+fi
+cd ../..
