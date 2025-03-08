@@ -4,17 +4,17 @@ This folder contains the scripts used to study firecracker's isolation propertie
 
 ## Getting started
 
-The data/ subdirectory contains data that is copied into each VM. This can be
-used, for example, to include attack programs in each VM.
-
 ```bash
 ./download_firecracker.sh         # run once
+```
 
-# then, for each vm (vm1, vm2, ...):
-mk_linux_img.sh     <vm-dir>      # once per vm
-mk_fs_img.sh        <vm-dir>      # when data/ changes
+See the runner.sh script at the repository root for how to run attacks.
 
-# run everytime one starts a new vm
-start_firecracker.sh <vm-dir>     # run in one terminal
-start_microvm.sh     <vm-dir>     # run in another terminal
+Use the following files to debug outputs from firecracker and vms:
+
+```
+./out_victim.txt            # firecracker output for victim vm
+./microvm_out_victim.txt    # vm's output for the victim vm
+./out_victim.txt            # firecracker output for attacker vm
+./microvm_out_victim.txt    # vm's output for the attacker vm
 ```
