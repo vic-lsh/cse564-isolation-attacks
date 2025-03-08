@@ -10,6 +10,11 @@ fi
 
 VMROOT=$1
 
+if [! -d $VMROOT]; then
+    echo "Error: the vm directory '$VMROOT' doesn't exist"
+    exit 1
+fi
+
 # Get the last character of VMROOT
 last_char="${VMROOT: -1}"
 
