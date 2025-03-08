@@ -12,16 +12,25 @@ system=$1
 attack=$2
 
 cd attacks/$attack
-./before_run_setup.sh
+
+if [ -f ./before_run_setup ]; then
+    ./before_run_setup.sh
+fi
 
 echo "Running victim unmodified..."
 ../../systems/$system/run.sh victim
 
-./after_run_teardown.sh
+if [ -f ./after_run_teardown ]; then
+    ./after_run_teardown.sh
+fi
 
-./before_run_setup.sh
+if [ -f ./before_run_setup ]; then
+    ./before_run_setup.sh
+fi
 
 echo "Running victim + attack..."
 ../../systems/$system/run.sh victim attacker
 
-./after_run_teardown.sh
+if [ -f ./after_run_teardown ]; then
+    ./after_run_teardown.sh
+fi
