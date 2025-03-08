@@ -3,17 +3,22 @@
 #set -e
 set -x
 
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <vm-rootdir>"
+if [ "$#" -lt 1 ]; then
+    echo "Usage: $0 <vm-rootdir> [ssh-cmd]"
     exit 1
 fi
 
 VMROOT=$1
-
-if [! -d $VMROOT]; then
+if [ ! -d $VMROOT ]; then
     echo "Error: the vm directory '$VMROOT' doesn't exist"
     exit 1
 fi
+
+ssh_cmd=
+if [ "$#" -ge 2 ]; then
+    ssh_cmd="$2"
+fi
+
 
 # Get the last character of VMROOT
 last_char="${VMROOT: -1}"
@@ -152,8 +157,17 @@ ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP  "echo 'nameserver 8.8.8.8' > /
 # Setup /mnt/data
 ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP  "mount /dev/vdb /mnt/data"
 
-# SSH into the microVM
-ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP
+if [ -n "$ssh_cmd" ]; then
+    echo "going to execute cmd on vm: $ssh_cmd"
+    # SSH into the microVM with the user-supplied command
+    ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP  $ssh_cmd
+else
+    # SSH into the microVM
+    ssh -i ./$VMROOT/ubuntu-24.04.id_rsa root@$VM_IP
+fi
+
+echo "microVM $VMROOT execution complete."
+
 
 # Use `root` for both the login and password.
 # Run `reboot` to exit.
