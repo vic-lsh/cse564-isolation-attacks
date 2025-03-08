@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+if [ $# -ne 2 ]; then
+    echo "Error: Exactly 2 arguments are required."
+    echo "Usage: runner.sh <system> <attack>"
+    exit 1
+fi
+
+
 system=$1
 attack=$2
 
