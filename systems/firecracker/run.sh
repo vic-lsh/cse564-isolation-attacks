@@ -22,9 +22,6 @@ cleanup() {
     for pid in "${microvm_pids[@]}"; do
         sudo kill -9 $pid
     done
-    # sudo kill -9 $firecracker_pid
-    # sudo kill -9 $mirovm_pid
-    # echo "Cleanup complete. Exiting."
     exit 0
 }
 
@@ -50,7 +47,7 @@ for role in $roles; do
     microvm_pids+=($microvm_pid)
 
 done
-#wait $microvm_pid
+
 for pid in "${microvm_pids[@]}"; do
     wait $pid
     echo "Process $pid completed with status $?"
