@@ -3,4 +3,4 @@
 # Change to the directory containing the script
 cd "$(dirname "$0")"
 
-../../bin/sort
+../../bin/sort 23
