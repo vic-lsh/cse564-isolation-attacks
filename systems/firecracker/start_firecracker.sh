@@ -15,4 +15,4 @@ API_SOCKET="/tmp/firecracker_$VMROOT.socket"
 sudo rm -f $API_SOCKET
 
 # Run firecracker
-sudo ./firecracker --api-sock "${API_SOCKET}"
+sudo firecracker --api-sock "${API_SOCKET}"
