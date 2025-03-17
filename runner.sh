@@ -19,25 +19,26 @@ cd ../..
 
 cd attacks/$attack
 
-if [ -f ./before_run_setup ]; then
+if [ -f ./before_run_setup.sh ]; then
     ./before_run_setup.sh
 fi
 
 echo "Running victim unmodified..."
 ../../systems/$system/run.sh victim
 
-if [ -f ./after_run_teardown ]; then
+if [ -f ./after_run_teardown.sh ]; then
     ./after_run_teardown.sh
 fi
+#exit 1
 
-if [ -f ./before_run_setup ]; then
+if [ -f ./before_run_setup.sh ]; then
     ./before_run_setup.sh
 fi
 
 echo "Running victim + attack..."
 ../../systems/$system/run.sh victim attacker
 
-if [ -f ./after_run_teardown ]; then
+if [ -f ./after_run_teardown.sh ]; then
     ./after_run_teardown.sh
 fi
 
