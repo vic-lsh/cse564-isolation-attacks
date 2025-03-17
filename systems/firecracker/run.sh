@@ -1,6 +1,4 @@
 #!/bin/bash
-set -x
-set -e
 
 attack=$(basename $(pwd))
 firecracker_dir=../../systems/firecracker
@@ -31,20 +29,38 @@ trap cleanup SIGINT
 ./mk_fs_img.sh vm1
 ./mk_fs_img.sh vm2
 
+
+roles=$@
+has_attacker=0
+for role in "$roles"; do
+    if [[ "$role" == "attacker" ]]; then
+        has_attacker=1
+        break
+    fi
+done
+
 vmroot=
 vm_cmd=
-roles=$@
 for role in $roles; do
     echo "running $attack/$role"
 
     vmroot="${vm_map[$role]}"
 
+    log_suffix=$role
+    if [[ "$role" == "victim" ]]; then
+        if [[ $has_attacker -eq 1 ]]; then
+            log_suffix=vicim
+        else
+            log_suffix=victim_standalone
+        fi
+    fi
+
     vm_cmd="/mnt/data/$attack/$role/app/run.sh"
 
-    ./start_firecracker.sh $vmroot         > out_$role.txt 2>&1  &
+    ./start_firecracker.sh $vmroot         > out_$log_suffix.txt 2>&1  &
     firecracker_pid=$!
     firecracker_pids+=($firecracker_pid)
-    ./start_microvm.sh     $vmroot $vm_cmd > microvm_out_$role.txt 2>&1 &
+    ./start_microvm.sh     $vmroot $vm_cmd > microvm_out_$log_suffix.txt 2>&1 &
     microvm_pid=$!
     microvm_pids+=($microvm_pid)
 
@@ -59,7 +75,7 @@ for pid in "${firecracker_pids[@]}"; do
     sudo kill -9 $pid
 done
 
-sudo pkill -9 -f firecracker
+sudo ps aux | grep "/tmp/firecracker_" | grep -v grep | awk '{print $2}' | xargs -r kill -9
 # these firecracker scripts can make the terminal behavior funky. do a reset here to fix.
 reset
 
