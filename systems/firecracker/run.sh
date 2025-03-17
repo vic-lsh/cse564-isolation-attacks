@@ -28,6 +28,8 @@ cleanup() {
 # Set up trap for Ctrl+C (SIGINT)
 trap cleanup SIGINT
 
+./mk_fs_img.sh vm1
+./mk_fs_img.sh vm2
 
 vmroot=
 vm_cmd=
