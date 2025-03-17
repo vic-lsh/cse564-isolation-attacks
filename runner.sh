@@ -29,6 +29,7 @@ echo "Running victim unmodified..."
 if [ -f ./after_run_teardown.sh ]; then
     ./after_run_teardown.sh
 fi
+#exit 1
 
 if [ -f ./before_run_setup.sh ]; then
     ./before_run_setup.sh

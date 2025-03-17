@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+# this script assumes you have docker installed...
 # compile dockerfile with everything we need
 
 if [ -e .setup_done ]; then
