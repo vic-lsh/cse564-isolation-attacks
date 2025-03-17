@@ -20,7 +20,7 @@ for person in $people; do
 	fi
 	cd $person/app
 	# run app process
-	sudo docker run --memory=$total_memory_over_22 --cpuset-cpus="0-27" -v $(pwd):/mnt/app --rm cs564-runner &
+	sudo docker run --memory=$total_memory_over_22 --cpuset-cpus="0-27" --add-host=host.docker.internal:host-gateway -v $(pwd):/mnt/app --rm cs564-runner &
 	cd ../..
 done
 wait

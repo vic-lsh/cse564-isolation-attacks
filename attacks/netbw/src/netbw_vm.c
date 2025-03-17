@@ -87,6 +87,8 @@ int main(int argc, char *argv[]) {
     double elapsed_secs;
     int duration = TEST_DURATION;
     char *server_ip;
+    struct hostent *host;
+
     
     // Check for custom duration
     if (argc > 1) {
@@ -101,9 +103,16 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, sig_handler);
     
     // Get server IP based on eth0
-    server_ip = get_server_ip();
+    // server_ip = get_server_ip();
+    // server_ip = "127.0.0.1";
+    server_ip = "host.docker.internal";
     if (server_ip == NULL) {
         fprintf(stderr, "Failed to determine server IP from eth0. Please check your network configuration.\n");
+        return 1;
+    }
+    host = gethostbyname(server_ip);
+    if (host == NULL) {
+        fprintf(stderr, "Error resolving hostname %s\n", server_ip);
         return 1;
     }
     
@@ -120,12 +129,13 @@ int main(int argc, char *argv[]) {
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(SERVER_PORT);
+    memcpy(&server_addr.sin_addr, host->h_addr, host->h_length);
     
-    if (inet_pton(AF_INET, server_ip, &server_addr.sin_addr) <= 0) {
-        perror("Invalid address");
-        close(sockfd);
-        return 1;
-    }
+    // if (inet_pton(AF_INET, server_ip, &server_addr.sin_addr) <= 0) {
+    //     perror("Invalid address");
+    //     close(sockfd);
+    //     return 1;
+    // }
     
     // Connect to server
     printf("Attempting to connect to %s:%d...\n", server_ip, SERVER_PORT);
