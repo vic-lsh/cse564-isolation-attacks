@@ -19,7 +19,7 @@ cd ../..
 
 cd attacks/$attack
 
-if [ -f ./before_run_setup ]; then
+if [ -f ./before_run_setup.sh ]; then
     ./before_run_setup.sh
 fi
 
