@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Werror -O2
+CFLAGS = -Wall -O2
 LDFLAGS = -lnuma -lm -lpthread
 
 SRC_DIR = src
