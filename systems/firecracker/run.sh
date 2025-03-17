@@ -28,6 +28,8 @@ cleanup() {
 # Set up trap for Ctrl+C (SIGINT)
 trap cleanup SIGINT
 
+./mk_fs_img.sh vm1
+./mk_fs_img.sh vm2
 
 vmroot=
 vm_cmd=
@@ -57,6 +59,7 @@ for pid in "${firecracker_pids[@]}"; do
     sudo kill -9 $pid
 done
 
+sudo pkill -9 -f firecracker
 # these firecracker scripts can make the terminal behavior funky. do a reset here to fix.
 reset
 
